@@ -13,7 +13,7 @@ import {
 import { auth } from '../middlewares/authMiddlewares.js';
 const userRouter = Router();
 
-userRouter.post(`/`, createUser);
+userRouter.post(`/register`, createUser);
 userRouter.post(`/login`, loginUser);
 userRouter.post(`/logout`, logoutUser);
 userRouter.get(`/session`, auth, checkSession);

@@ -12,8 +12,8 @@ const userSchema = new Schema(
     password: {
       type: String,
       required: true,
-      minlength: 6,
-      maxlength: 16,
+      minlength: 50,
+      maxlength: 70,
       // match: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,16}$/,
       // This regex enforces:
       // - At least one lowercase letter
