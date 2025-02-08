@@ -16,7 +16,7 @@ const userRouter = Router();
 userRouter.post(`/register`, createUser);
 userRouter.post(`/login`, loginUser);
 userRouter.post(`/logout`, logoutUser);
-userRouter.get(`/session`, auth, checkSession);
+userRouter.get(`/check-session`, auth, checkSession);
 userRouter.get(`/`, auth, getUsers);
 userRouter.get(`/:id`, auth, getUserById);
 userRouter.put(`/:id`, auth, updateUser);

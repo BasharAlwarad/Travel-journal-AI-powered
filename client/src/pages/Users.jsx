@@ -6,10 +6,12 @@ const Users = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  const URL = import.meta.env.VITE_ORIGINAL_URL;
+
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const response = await axios.get('http://localhost:8080/api/v1/users', {
+        const response = await axios.get(`${URL}/api/v1/users`, {
           withCredentials: true,
         });
         setUsers(response.data);
