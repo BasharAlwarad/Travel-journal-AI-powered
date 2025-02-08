@@ -1,4 +1,5 @@
 import { NavLink } from 'react-router-dom';
+import Themes from './Themes';
 
 const Nav = () => {
   const activeLink = ({ isActive }) =>
@@ -28,6 +29,7 @@ const Nav = () => {
         <NavLink to="/login" className={activeLink}>
           Login
         </NavLink>
+        <Themes />
       </div>
     </nav>
   );
