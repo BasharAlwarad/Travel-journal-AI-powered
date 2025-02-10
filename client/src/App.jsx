@@ -5,6 +5,7 @@ import Home from './pages/Home';
 import Users from './pages/Users';
 import Posts from './pages/Posts';
 import Login from './pages/Login';
+import Register from './pages/Register';
 import { AuthProvider } from './contexts/userContext';
 
 function App() {
@@ -17,6 +18,7 @@ function App() {
           <Route path="/users" element={<Users />} />
           <Route path="/posts" element={<Posts />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
         </Routes>
         <Footer />
       </AuthProvider>

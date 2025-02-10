@@ -1,8 +1,10 @@
 import User from '../models/userModel.js';
-import { CustomError } from '../utils/errorHandler.js';
-import asyncHandler from '../utils/asyncHandler.js';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
+import { bucket } from '../config/firebase.js';
+import { JWT_EXPIRES_IN, JWT_SECRET } from '../config/config.js';
+import { CustomError } from '../utils/errorHandler.js';
+import asyncHandler from '../utils/asyncHandler.js';
 
 // Get all users
 export const getUsers = asyncHandler(async (req, res, next) => {
@@ -20,9 +22,10 @@ export const getUserById = asyncHandler(async (req, res, next) => {
 });
 
 // Create a new user
-export const createUser = asyncHandler(async (req, res, next) => {
-  const { name, email, password, role, image } = req.body;
 
+export const createUser = asyncHandler(async (req, res, next) => {
+  const { name, email, password, role } = req.body;
+  const image = req.file;
   const hashedPassword = await bcrypt.hash(password, 10);
 
   const newUser = new User({
@@ -30,8 +33,35 @@ export const createUser = asyncHandler(async (req, res, next) => {
     email,
     password: hashedPassword,
     role,
-    image,
   });
+
+  if (image) {
+    try {
+      const blob = bucket.file(
+        `images/${name}/${Date.now()}_${image.originalname}`
+      );
+      const blobStream = blob.createWriteStream({
+        metadata: { contentType: image.mimetype },
+      });
+
+      await new Promise((resolve, reject) => {
+        blobStream.on('error', (err) =>
+          reject(new CustomError('Image upload failed', 500))
+        );
+        blobStream.on('finish', resolve);
+        blobStream.end(image.buffer);
+      });
+
+      // Get signed URL after upload
+      const signedUrl = await blob.getSignedUrl({
+        action: 'read',
+        expires: '03-01-2500',
+      });
+      newUser.image = signedUrl[0];
+    } catch (error) {
+      return next(new CustomError('Image upload failed', 500));
+    }
+  }
 
   await newUser.save();
   res.status(201).json(newUser);
