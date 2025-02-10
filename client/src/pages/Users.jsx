@@ -1,17 +1,16 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
+import { ORIGIN_URL } from '../config';
 
 const Users = () => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const URL = import.meta.env.VITE_ORIGINAL_URL;
-
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const response = await axios.get(`${URL}/api/v1/users`, {
+        const response = await axios.get(`${ORIGIN_URL}/api/v1/users`, {
           withCredentials: true,
         });
         setUsers(response.data);

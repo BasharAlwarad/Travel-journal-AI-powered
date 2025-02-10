@@ -34,7 +34,7 @@ export const createUser = asyncHandler(async (req, res, next) => {
     password: hashedPassword,
     role,
   });
-
+  console.log(image);
   if (image) {
     try {
       const blob = bucket.file(
