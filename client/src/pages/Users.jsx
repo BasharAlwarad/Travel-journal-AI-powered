@@ -49,7 +49,7 @@ const Users = () => {
               <p className="text-gray-600">{user.email}</p>
               <p className="text-sm text-gray-500">{user.role}</p>
               <div className="mt-4 card-actions">
-                <button className="btn btn-primary">View Profile</button>
+                <button className="btn btn-primary">View 😃 Profile</button>
               </div>
             </div>
           </div>
