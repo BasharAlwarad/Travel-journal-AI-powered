@@ -10,10 +10,14 @@ export const getReviewsByPost = asyncHandler(async (req, res, next) => {
     'user',
     'name email'
   );
+
   if (!reviews) {
     next(new CustomError('Reviews not found', 404));
   }
-  res.status(200).json(reviews);
+
+  const filteredReviews = reviews.filter((review) => review.user);
+
+  res.status(200).json(filteredReviews);
 });
 
 // Get a single review by ID
