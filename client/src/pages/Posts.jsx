@@ -135,14 +135,6 @@ const Posts = () => {
             />
           </div>
         )}
-
-        {/* <input
-          type="text"
-          placeholder="Image URL"
-          value={image}
-          onChange={(e) => setImage(e.target.value)}
-          className="w-full mb-4 input input-bordered"
-        /> */}
         <button
           onClick={editingPost ? () => updatePost(editingPost) : createPost}
           className="w-full btn btn-primary"
