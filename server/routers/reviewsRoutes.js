@@ -6,14 +6,25 @@ import {
   updateReview,
   deleteReview,
 } from '../controllers/reviewsControllers.js';
-import { auth } from '../middlewares/authMiddlewares.js';
+import {
+  auth,
+  reviewOwner,
+  preventPostOwnerReview,
+  preventMultipleReviews,
+} from '../middlewares/authMiddlewares.js';
 
 const router = express.Router();
 
 router.get('/post/:postId', getReviewsByPost);
 router.get('/:id', auth, getReviewById);
-router.post('/post/:postId', auth, createReview);
-router.put('/:id', auth, updateReview);
-router.delete('/:id', auth, deleteReview);
+router.post(
+  '/post/:postId',
+  auth,
+  preventPostOwnerReview,
+  preventMultipleReviews,
+  createReview
+);
+router.put('/:id', auth, reviewOwner, updateReview);
+router.delete('/:id', auth, reviewOwner, deleteReview);
 
 export default router;
