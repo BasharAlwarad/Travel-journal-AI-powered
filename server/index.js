@@ -5,6 +5,7 @@ import cookieParser from 'cookie-parser';
 
 import { errorHandler } from './utils/errorHandler.js';
 import usersRouter from './routers/userRouter.js';
+import postsRouter from './routers/postsRoutes.js';
 import './db/mongoDB.js';
 
 config();
@@ -22,6 +23,7 @@ app.get('/', (req, res) => {
 });
 
 app.use(`/api/v1/users`, usersRouter);
+app.use(`/api/v1/posts`, postsRouter);
 
 app.get('*', (req, res) => {
   res.status(404).json({ message: 'page not found!' });
