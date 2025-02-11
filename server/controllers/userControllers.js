@@ -2,7 +2,6 @@ import User from '../models/userModel.js';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
 import { bucket } from '../config/firebase.js';
-import { JWT_EXPIRES_IN, JWT_SECRET } from '../config/config.js';
 import { CustomError } from '../utils/errorHandler.js';
 import asyncHandler from '../utils/asyncHandler.js';
 
@@ -34,7 +33,7 @@ export const createUser = asyncHandler(async (req, res, next) => {
     password: hashedPassword,
     role,
   });
-  console.log(image);
+
   if (image) {
     try {
       const blob = bucket.file(
