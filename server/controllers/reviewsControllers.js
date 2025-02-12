@@ -17,7 +17,7 @@ export const getReviewsByPost = asyncHandler(async (req, res, next) => {
 
   const filteredReviews = reviews.filter((review) => review.user);
 
-  res.status(200).json(filteredReviews);
+  res.status(200).json({ filteredReviews, user: req.user });
 });
 
 // Get a single review by ID

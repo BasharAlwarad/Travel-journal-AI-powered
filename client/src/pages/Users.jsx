@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { ORIGIN_URL } from '../config';
+import { useAuthContext } from '../contexts/userContext';
 
 const Users = () => {
-  const [users, setUsers] = useState([]);
+  const { user, users, setUsers } = useAuthContext();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 

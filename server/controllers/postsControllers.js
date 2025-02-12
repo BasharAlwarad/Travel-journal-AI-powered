@@ -6,7 +6,7 @@ import asyncHandler from '../utils/asyncHandler.js';
 // Get all posts
 export const getPosts = asyncHandler(async (req, res, next) => {
   const posts = await Post.find().populate('user', 'name email');
-  res.status(200).json(posts);
+  res.status(200).json({ posts, user: req.user });
 });
 
 // Get post by ID

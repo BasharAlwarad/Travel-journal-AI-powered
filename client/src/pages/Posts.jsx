@@ -2,8 +2,10 @@ import { useEffect, useState, useRef } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
 import { ORIGIN_URL } from '../config';
+import { useAuthContext } from '../contexts/userContext';
 
 const Posts = () => {
+  const { user, setUser } = useAuthContext();
   const [posts, setPosts] = useState([]);
   const [text, setText] = useState('');
   const [image, setImage] = useState(null);
@@ -33,7 +35,8 @@ const Posts = () => {
       const response = await axios.get(`${ORIGIN_URL}/api/v1/posts`, {
         withCredentials: true,
       });
-      setPosts(Array.isArray(response.data) ? response.data : []);
+      setUser(response?.data?.user);
+      setPosts(Array.isArray(response.data.posts) ? response.data.posts : []);
     } catch (error) {
       setError(error.response?.data?.message || 'Failed to fetch posts');
       setPosts([]);
@@ -167,6 +170,51 @@ const Posts = () => {
                 >
                   Read More
                 </Link>
+                {user &&
+                  post.user?._id === user.id && ( // Show buttons only for the owner
+                    <div className="flex space-x-2">
+                      <button
+                        onClick={() => {
+                          setText(post.text);
+                          setImage(post.image);
+                          setEditingPost(post._id);
+                        }}
+                        className="btn btn-outline btn-sm"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        onClick={() => deletePost(post._id)}
+                        className="btn btn-error btn-sm"
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  )}
+              </div>
+            </li>
+          ))}
+
+          {/* {posts.map((post) => (
+            <li key={post._id} className="p-4 rounded-lg shadow-md bg-gray-50">
+              <p className="text-lg font-medium">{post.text}</p>
+              {post.image && (
+                <img
+                  src={post.image}
+                  alt="Post"
+                  className="object-cover w-full h-48 mt-2 rounded-lg"
+                />
+              )}
+              <p className="mt-2 text-sm text-gray-500">
+                Posted by: {post?.user?.name}
+              </p>
+              <div className="flex justify-between mt-4">
+                <Link
+                  to={`/posts/${post._id}`}
+                  className="text-blue-500 hover:underline"
+                >
+                  Read More
+                </Link>
                 <div className="flex space-x-2">
                   <button
                     onClick={() => {
@@ -187,7 +235,7 @@ const Posts = () => {
                 </div>
               </div>
             </li>
-          ))}
+          ))} */}
         </ul>
       ) : (
         <p className="text-center text-gray-500">No posts available.</p>

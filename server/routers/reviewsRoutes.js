@@ -15,7 +15,7 @@ import {
 
 const router = express.Router();
 
-router.get('/post/:postId', getReviewsByPost);
+router.get('/post/:postId', auth, getReviewsByPost);
 router.get('/:id', auth, getReviewById);
 router.post(
   '/post/:postId',

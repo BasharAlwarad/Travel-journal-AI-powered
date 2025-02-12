@@ -2,14 +2,18 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
 import { ORIGIN_URL } from '../config';
+import { useAuthContext } from '../contexts/userContext';
 
 const PostDetail = () => {
+  const { user, setUser } = useAuthContext(); // Get the authenticated user from context
   const { id } = useParams();
   const [post, setPost] = useState(null);
   const [reviews, setReviews] = useState([]);
   const [newReviewText, setNewReviewText] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [editReviewId, setEditReviewId] = useState(null);
+  const [editReviewText, setEditReviewText] = useState('');
 
   useEffect(() => {
     const fetchPostAndReviews = async () => {
@@ -27,8 +31,9 @@ const PostDetail = () => {
             withCredentials: true,
           }
         );
+        setUser(reviewsResponse?.data?.user);
         setPost(postResponse.data);
-        setReviews(reviewsResponse.data);
+        setReviews(reviewsResponse.data.filteredReviews);
       } catch (error) {
         setError(error.response?.data?.message || 'Failed to retrieve post');
       }
@@ -36,7 +41,7 @@ const PostDetail = () => {
     };
 
     fetchPostAndReviews();
-  }, [id]);
+  }, [id, setUser]);
 
   const handleAddReview = async () => {
     if (!newReviewText.trim()) return;
@@ -54,11 +59,11 @@ const PostDetail = () => {
     }
   };
 
-  const handleUpdateReview = async (reviewId, updatedText) => {
+  const handleUpdateReview = async (reviewId) => {
     try {
       const response = await axios.put(
         `${ORIGIN_URL}/api/v1/reviews/${reviewId}`,
-        { text: updatedText },
+        { text: editReviewText },
         { withCredentials: true }
       );
       setReviews(
@@ -66,6 +71,8 @@ const PostDetail = () => {
           review._id === reviewId ? response.data : review
         )
       );
+      setEditReviewId(null); // Exit edit mode
+      setEditReviewText(''); // Clear the text field
     } catch (error) {
       setError(error.response?.data?.message || 'Failed to update review');
     }
@@ -111,56 +118,86 @@ const PostDetail = () => {
           <ul className="mb-4 space-y-3">
             {reviews?.map((review) => (
               <li key={review._id} className="p-3 bg-gray-100 rounded-lg">
-                <p className="mb-1 text-gray-800">{review.text}</p>
-                <p className="text-sm text-gray-500">
-                  {review.user
-                    ? `${review.user.name} - ${new Date(
-                        review.createdAt
-                      ).toLocaleString()}`
-                    : 'Unknown User'}
-                </p>
-                <div className="flex gap-2 mt-2">
-                  <button
-                    onClick={() => {
-                      const updatedText = prompt(
-                        'Update your review:',
-                        review.text
-                      );
-                      if (updatedText)
-                        handleUpdateReview(review._id, updatedText);
-                    }}
-                    className="px-3 py-1 text-white bg-blue-500 rounded"
-                  >
-                    Update
-                  </button>
-                  <button
-                    onClick={() => handleDeleteReview(review._id)}
-                    className="px-3 py-1 text-white bg-red-500 rounded"
-                  >
-                    Delete
-                  </button>
-                </div>
+                {editReviewId === review._id ? (
+                  <div>
+                    <textarea
+                      value={editReviewText}
+                      onChange={(e) => setEditReviewText(e.target.value)}
+                      className="w-full p-2 mt-2 border rounded"
+                      rows="3"
+                    />
+                    <div className="mt-2 flex gap-2">
+                      <button
+                        onClick={() => handleUpdateReview(review._id)}
+                        className="px-3 py-1 text-white bg-blue-500 rounded"
+                      >
+                        Update
+                      </button>
+                      <button
+                        onClick={() => setEditReviewId(null)} // Cancel edit
+                        className="px-3 py-1 text-white bg-gray-500 rounded"
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <div>
+                    <p className="mb-1 text-gray-800">{review.text}</p>
+                    <p className="text-sm text-gray-500">
+                      {review.user
+                        ? `${review.user.name} - ${new Date(
+                            review.createdAt
+                          ).toLocaleString()}`
+                        : 'Unknown User'}
+                    </p>
+                    <div className="flex gap-2 mt-2">
+                      {/* Only show update and delete buttons if the review belongs to the logged-in user */}
+                      {user && review.user._id === user.id && (
+                        <>
+                          <button
+                            onClick={() => {
+                              setEditReviewId(review._id); // Enter edit mode
+                              setEditReviewText(review.text); // Set the review text
+                            }}
+                            className="px-3 py-1 text-white bg-blue-500 rounded"
+                          >
+                            Edit
+                          </button>
+                          <button
+                            onClick={() => handleDeleteReview(review._id)}
+                            className="px-3 py-1 text-white bg-red-500 rounded"
+                          >
+                            Delete
+                          </button>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                )}
               </li>
             ))}
           </ul>
 
-          {/* {!hasUserReviewed && ()} */}
-          <div className="mt-4">
-            <h3 className="text-xl font-semibold">Add a Review</h3>
-            <textarea
-              value={newReviewText}
-              onChange={(e) => setNewReviewText(e.target.value)}
-              className="w-full p-2 mt-2 border rounded"
-              rows="3"
-              placeholder="Write your review..."
-            ></textarea>
-            <button
-              onClick={handleAddReview}
-              className="px-4 py-2 mt-2 text-white bg-green-500 rounded"
-            >
-              Submit
-            </button>
-          </div>
+          {/* Show Add Review form only if not editing */}
+          {editReviewId === null && (
+            <div className="mt-4">
+              <h3 className="text-xl font-semibold">Add a Review</h3>
+              <textarea
+                value={newReviewText}
+                onChange={(e) => setNewReviewText(e.target.value)}
+                className="w-full p-2 mt-2 border rounded"
+                rows="3"
+                placeholder="Write your review..."
+              ></textarea>
+              <button
+                onClick={handleAddReview}
+                className="px-4 py-2 mt-2 text-white bg-green-500 rounded"
+              >
+                Submit
+              </button>
+            </div>
+          )}
         </>
       ) : (
         <p className="text-center text-gray-500">Post not found.</p>

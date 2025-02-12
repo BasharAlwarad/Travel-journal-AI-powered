@@ -2,12 +2,13 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { ORIGIN_URL } from '../config';
+import { useAuthContext } from '../contexts/userContext';
 
 const Login = () => {
+  const { user, setUser } = useAuthContext();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [message, setMessage] = useState('');
-  const [user, setUser] = useState(null);
 
   const navigate = useNavigate();
 
@@ -43,7 +44,7 @@ const Login = () => {
       );
       setUser(response.data.user);
       setMessage('Login successful!');
-      navigate('/posts'); // Navigate to /posts on successful login
+      navigate('/posts');
     } catch (error) {
       setMessage(error.response?.data?.message || 'Login failed');
     }
