@@ -8,6 +8,7 @@ const JWT_SECRET = process.env.JWT_SECRET;
 const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN;
 const CLIENT_URL = process.env.CLIENT_URL;
 const storageBucket = process.env.FIREBASE_SERVICE_BUCKET_NAME;
+const apiKey = process.env.OPEN_AI_APIKEY;
 
 export {
   PORT,
@@ -17,4 +18,5 @@ export {
   JWT_EXPIRES_IN,
   CLIENT_URL,
   storageBucket,
+  apiKey,
 };
