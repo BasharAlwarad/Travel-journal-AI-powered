@@ -3,9 +3,10 @@ import { useParams } from 'react-router-dom';
 import axios from 'axios';
 import { ORIGIN_URL } from '../config';
 import { useAuthContext } from '../contexts/userContext';
+import AIReviewButton from '../components/AIReviewButton';
 
 const PostDetail = () => {
-  const { user, setUser } = useAuthContext(); // Get the authenticated user from context
+  const { user, setUser } = useAuthContext();
   const { id } = useParams();
   const [post, setPost] = useState(null);
   const [reviews, setReviews] = useState([]);
@@ -198,6 +199,7 @@ const PostDetail = () => {
               </button>
             </div>
           )}
+          <AIReviewButton postId={id} />
         </>
       ) : (
         <p className="text-center text-gray-500">Post not found.</p>
