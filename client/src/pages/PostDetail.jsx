@@ -72,8 +72,8 @@ const PostDetail = () => {
           review._id === reviewId ? response.data : review
         )
       );
-      setEditReviewId(null); // Exit edit mode
-      setEditReviewText(''); // Clear the text field
+      setEditReviewId(null);
+      setEditReviewText('');
     } catch (error) {
       setError(error.response?.data?.message || 'Failed to update review');
     }
@@ -153,13 +153,12 @@ const PostDetail = () => {
                         : 'Unknown User'}
                     </p>
                     <div className="flex gap-2 mt-2">
-                      {/* Only show update and delete buttons if the review belongs to the logged-in user */}
                       {user && review.user._id === user.id && (
                         <>
                           <button
                             onClick={() => {
-                              setEditReviewId(review._id); // Enter edit mode
-                              setEditReviewText(review.text); // Set the review text
+                              setEditReviewId(review._id);
+                              setEditReviewText(review.text);
                             }}
                             className="px-3 py-1 text-white bg-blue-500 rounded"
                           >
@@ -180,7 +179,6 @@ const PostDetail = () => {
             ))}
           </ul>
 
-          {/* Show Add Review form only if not editing */}
           {editReviewId === null && (
             <div className="mt-4">
               <h3 className="text-xl font-semibold">Add a Review</h3>

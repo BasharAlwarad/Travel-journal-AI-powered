@@ -13,6 +13,7 @@ const Posts = () => {
   const [imagePreview, setImagePreview] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [AIImage, setAIImage] = useState(null);
 
   const fileInputRef = useRef(null);
 
@@ -20,7 +21,6 @@ const Posts = () => {
     fileInputRef.current.click();
   };
 
-  // Handle image file selection and preview
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -54,6 +54,9 @@ const Posts = () => {
     if (image) {
       formData.append('image', image);
     }
+    if (AIImage) {
+      formData.append('AIImage', AIImage);
+    }
     try {
       const response = await axios.post(
         `${ORIGIN_URL}/api/v1/posts`,
@@ -66,6 +69,7 @@ const Posts = () => {
       setPosts([response.data, ...posts]);
       setText('');
       setImage('');
+      setImagePreview(null);
     } catch (error) {
       setError(error.response?.data?.message || 'Failed to create post');
     }
@@ -95,6 +99,38 @@ const Posts = () => {
       setPosts(posts.filter((post) => post._id !== id));
     } catch (error) {
       setError(error.response?.data?.message || 'Failed to delete post');
+    }
+  };
+
+  const handleGenerateAIImage = async () => {
+    const requestPayload = {
+      model: 'dall-e-3',
+      prompt: text,
+      size: '1024x1024',
+      response_format: 'b64_json',
+    };
+
+    try {
+      const response = await fetch(`${ORIGIN_URL}/api/v1/images/generations`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(requestPayload),
+      });
+
+      const data = await response.json();
+      const base64Image = data[0].b64_json;
+      if (base64Image) {
+        const imageSrc = `data:image/png;base64,${base64Image}`;
+        console.log(imageSrc);
+        setImagePreview(imageSrc);
+        setAIImage(imageSrc);
+      } else {
+        console.error('No base64 image data found');
+      }
+    } catch (error) {
+      console.error('Error:', error);
     }
   };
 
@@ -129,6 +165,14 @@ const Posts = () => {
           onChange={handleImageChange}
           style={{ display: 'none' }}
         />
+        <button
+          type="button"
+          onClick={handleGenerateAIImage}
+          className="w-full btn btn-accent mt-2"
+        >
+          Generate AI Image
+        </button>
+
         {imagePreview && (
           <div className="mt-4">
             <img
@@ -170,72 +214,29 @@ const Posts = () => {
                 >
                   Read More
                 </Link>
-                {user &&
-                  post.user?._id === user.id && ( // Show buttons only for the owner
-                    <div className="flex space-x-2">
-                      <button
-                        onClick={() => {
-                          setText(post.text);
-                          setImage(post.image);
-                          setEditingPost(post._id);
-                        }}
-                        className="btn btn-outline btn-sm"
-                      >
-                        Edit
-                      </button>
-                      <button
-                        onClick={() => deletePost(post._id)}
-                        className="btn btn-error btn-sm"
-                      >
-                        Delete
-                      </button>
-                    </div>
-                  )}
+                {user && post.user?._id === user.id && (
+                  <div className="flex space-x-2">
+                    <button
+                      onClick={() => {
+                        setText(post.text);
+                        setImage(post.image);
+                        setEditingPost(post._id);
+                      }}
+                      className="btn btn-outline btn-sm"
+                    >
+                      Edit
+                    </button>
+                    <button
+                      onClick={() => deletePost(post._id)}
+                      className="btn btn-error btn-sm"
+                    >
+                      Delete
+                    </button>
+                  </div>
+                )}
               </div>
             </li>
           ))}
-
-          {/* {posts.map((post) => (
-            <li key={post._id} className="p-4 rounded-lg shadow-md bg-gray-50">
-              <p className="text-lg font-medium">{post.text}</p>
-              {post.image && (
-                <img
-                  src={post.image}
-                  alt="Post"
-                  className="object-cover w-full h-48 mt-2 rounded-lg"
-                />
-              )}
-              <p className="mt-2 text-sm text-gray-500">
-                Posted by: {post?.user?.name}
-              </p>
-              <div className="flex justify-between mt-4">
-                <Link
-                  to={`/posts/${post._id}`}
-                  className="text-blue-500 hover:underline"
-                >
-                  Read More
-                </Link>
-                <div className="flex space-x-2">
-                  <button
-                    onClick={() => {
-                      setText(post.text);
-                      setImage(post.image);
-                      setEditingPost(post._id);
-                    }}
-                    className="btn btn-outline btn-sm"
-                  >
-                    Edit
-                  </button>
-                  <button
-                    onClick={() => deletePost(post._id)}
-                    className="btn btn-error btn-sm"
-                  >
-                    Delete
-                  </button>
-                </div>
-              </div>
-            </li>
-          ))} */}
         </ul>
       ) : (
         <p className="text-center text-gray-500">No posts available.</p>

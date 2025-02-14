@@ -21,24 +21,40 @@ export const getPostById = asyncHandler(async (req, res, next) => {
   res.status(200).json(post);
 });
 
+import { Buffer } from 'buffer';
+
 // Create a new post
 export const createPost = asyncHandler(async (req, res, next) => {
-  const { text } = req.body;
+  const { text, AIImage } = req.body;
   const image = req.file;
   const userId = req.user.id;
   const name = req.user?.name;
+
   const newPost = new Post({
     text,
     user: userId,
   });
 
-  if (image) {
-    try {
-      const blob = bucket.file(
+  let uploadedImageUrl = '';
+
+  try {
+    let blob;
+    let buffer;
+
+    if (image) {
+      blob = bucket.file(
         `images/${name}/posts/${Date.now()}_${image.originalname}`
       );
+      buffer = image.buffer;
+    } else if (AIImage) {
+      const base64Data = AIImage.replace(/^data:image\/\w+;base64,/, '');
+      buffer = Buffer.from(base64Data, 'base64');
+      blob = bucket.file(`images/${name}/posts/${Date.now()}_generated.png`);
+    }
+
+    if (blob) {
       const blobStream = blob.createWriteStream({
-        metadata: { contentType: image.mimetype },
+        metadata: { contentType: 'image/png' },
       });
 
       await new Promise((resolve, reject) => {
@@ -46,25 +62,26 @@ export const createPost = asyncHandler(async (req, res, next) => {
           reject(new CustomError('Image upload failed', 500))
         );
         blobStream.on('finish', resolve);
-        blobStream.end(image.buffer);
+        blobStream.end(buffer);
       });
 
-      // Get signed URL after upload
       const signedUrl = await blob.getSignedUrl({
         action: 'read',
         expires: '03-01-2500',
       });
-      newPost.image = signedUrl[0];
-    } catch (error) {
-      next(new CustomError('Image upload failed', 500));
+
+      uploadedImageUrl = signedUrl[0];
+      newPost.image = uploadedImageUrl;
     }
+  } catch (error) {
+    return next(new CustomError('Image upload failed', 500));
   }
 
   await newPost.save();
 
   res.status(201).json({
     text: newPost.text,
-    image: newPost.image,
+    image: uploadedImageUrl,
     _id: newPost._id,
     user: req.user,
   });
