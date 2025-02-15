@@ -3,15 +3,12 @@ import OpenAIMock from '../utils/OpenAIMock.js';
 import asyncHandler from '../utils/asyncHandler.js';
 import Review from '../models/reviewModel.js';
 import Post from '../models/postsModel.js';
-import { apiKey } from '../config/config.js';
+import { apiKey, mode, stream } from '../config/config.js';
 
 export const createChat = asyncHandler(async (req, res) => {
-  const {
-    body: { stream, message },
-    headers: { mode },
-  } = req;
-
+  const { prompt } = req.body;
   const postId = req.params.id;
+
   const post = await Post.findById(postId).populate('user', 'name email');
   const reviews = await Review.find({ post: postId }).populate(
     'user',
@@ -31,9 +28,10 @@ export const createChat = asyncHandler(async (req, res) => {
           post.text
         }. 2. users reviews of the post: ${reviews.map(
           (review) => review.text
-        )} 3. ${message}`,
+        )} 3. ${prompt}`,
       },
     ],
+    stream,
   };
 
   let openai;
@@ -43,7 +41,6 @@ export const createChat = asyncHandler(async (req, res) => {
     : (openai = new OpenAIMock());
 
   const completion = await openai.chat.completions.create({
-    stream,
     ...request,
   });
 

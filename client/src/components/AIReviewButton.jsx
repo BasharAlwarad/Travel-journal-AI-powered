@@ -7,26 +7,16 @@ const AIReviewButton = ({ postId }) => {
   const [aiResponse, setAiResponse] = useState('');
   const [showAIResponse, setShowAIResponse] = useState(false);
   const [showInput, setShowInput] = useState(false);
-  const [userQuestion, setUserQuestion] = useState('');
+  const [prompt, setPrompt] = useState('');
 
   const handleGenerateAIReview = async () => {
-    if (!userQuestion.trim()) return;
+    if (!prompt.trim()) return;
 
     try {
       const response = await axios.post(
         `${ORIGIN_URL}/api/v1/chat/completions/${postId}`,
+        prompt,
         {
-          message: userQuestion,
-          stream: false,
-        },
-        {
-          headers: {
-            provider: 'open-ai',
-            // Change mode to 'production' before deploying to production
-            // mode: 'development',
-            mode: 'production',
-            'Content-Type': 'application/json',
-          },
           withCredentials: true,
         }
       );
@@ -39,7 +29,7 @@ const AIReviewButton = ({ postId }) => {
 
   const handleCloseInput = () => {
     setShowInput(false);
-    setUserQuestion('');
+    setPrompt('');
     setAiResponse('');
     setShowAIResponse(false);
   };
@@ -63,8 +53,8 @@ const AIReviewButton = ({ postId }) => {
           </button>
           <input
             type="text"
-            value={userQuestion}
-            onChange={(e) => setUserQuestion(e.target.value)}
+            value={prompt}
+            onChange={(e) => setPrompt(e.target.value)}
             placeholder="Ask AI about this post..."
             className="p-4 border rounded-lg w-full"
           />

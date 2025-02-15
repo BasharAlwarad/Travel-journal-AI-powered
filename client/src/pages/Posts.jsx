@@ -7,7 +7,7 @@ import { useAuthContext } from '../contexts/userContext';
 const Posts = () => {
   const { user, setUser } = useAuthContext();
   const [posts, setPosts] = useState([]);
-  const [text, setText] = useState('');
+  const [prompt, setPrompt] = useState('');
   const [image, setImage] = useState(null);
   const [editingPost, setEditingPost] = useState(null);
   const [imagePreview, setImagePreview] = useState('');
@@ -50,7 +50,7 @@ const Posts = () => {
 
   const createPost = async () => {
     const formData = new FormData();
-    formData.append('text', text);
+    formData.append('text', prompt);
     if (image) {
       formData.append('image', image);
     }
@@ -67,7 +67,7 @@ const Posts = () => {
         }
       );
       setPosts([response.data, ...posts]);
-      setText('');
+      setPrompt('');
       setImage('');
       setImagePreview(null);
     } catch (error) {
@@ -79,12 +79,12 @@ const Posts = () => {
     try {
       const response = await axios.put(
         `${ORIGIN_URL}/api/v1/posts/${id}`,
-        { text, image },
+        { text: prompt, image },
         { withCredentials: true }
       );
       setPosts(posts.map((post) => (post._id === id ? response.data : post)));
       setEditingPost(null);
-      setText('');
+      setPrompt('');
       setImage('');
     } catch (error) {
       setError(error.response?.data?.message || 'Failed to update post');
@@ -103,27 +103,17 @@ const Posts = () => {
   };
 
   const handleGenerateAIImage = async () => {
-    const requestPayload = {
-      model: 'dall-e-3',
-      prompt: text,
-      size: '1024x1024',
-      response_format: 'b64_json',
-    };
-
     try {
-      const response = await fetch(`${ORIGIN_URL}/api/v1/images/generations`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(requestPayload),
-      });
-
-      const data = await response.json();
+      const { data } = await axios.post(
+        `${ORIGIN_URL}/api/v1/images/generations`,
+        { prompt },
+        {
+          withCredentials: true,
+        }
+      );
       const base64Image = data[0].b64_json;
       if (base64Image) {
         const imageSrc = `data:image/png;base64,${base64Image}`;
-        console.log(imageSrc);
         setImagePreview(imageSrc);
         setAIImage(imageSrc);
       } else {
@@ -147,8 +137,8 @@ const Posts = () => {
         <input
           type="text"
           placeholder="Post text"
-          value={text}
-          onChange={(e) => setText(e.target.value)}
+          value={prompt}
+          onChange={(e) => setPrompt(e.target.value)}
           className="w-full mb-2 input input-bordered"
         />
         <button
@@ -218,7 +208,7 @@ const Posts = () => {
                   <div className="flex space-x-2">
                     <button
                       onClick={() => {
-                        setText(post.text);
+                        setPrompt(post.text);
                         setImage(post.image);
                         setEditingPost(post._id);
                       }}
