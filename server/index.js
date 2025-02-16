@@ -17,7 +17,12 @@ const PORT = process.env.PORT;
 const app = express();
 app.use(
   json(),
-  cors({ origin: process.env.CLIENT_URL, credentials: true }),
+  cors({
+    origin: process.env.CLIENT_URL,
+    credentials: true,
+    allowedHeaders: 'Content-Type,Authorization',
+    methods: 'GET,PUT,POST,DELETE',
+  }),
   cookieParser()
 );
 
