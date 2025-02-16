@@ -112,3 +112,34 @@ export const admin = (req, res, next) => {
   }
   next(new CustomError('Access denied. Admins only.', 403));
 };
+
+const requestCounts = new Map();
+const RESET_INTERVAL = 24 * 60 * 60 * 1000;
+
+setInterval(() => {
+  requestCounts.clear();
+}, RESET_INTERVAL);
+
+export const requestLimiter = (req, res, next) => {
+  const userId = req.user?.id;
+
+  if (!userId) {
+    return next(new CustomError('Unauthorized access', 401));
+  }
+
+  const userRequests = requestCounts.get(userId) || {
+    count: 0,
+    timestamp: Date.now(),
+  };
+
+  if (userRequests.count >= 10) {
+    return next(
+      new CustomError('Request limit exceeded. Try again tomorrow.', 429)
+    );
+  }
+
+  userRequests.count += 1;
+  requestCounts.set(userId, userRequests);
+
+  next();
+};
