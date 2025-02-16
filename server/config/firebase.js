@@ -1,8 +1,8 @@
 import admin from 'firebase-admin';
-import { storageBucket } from './config.js';
 
+import { firebaseServiceAccount, storageBucket } from '../config/config.js';
 admin.initializeApp({
-  credential: admin.credential.applicationDefault(),
+  credential: admin.credential.cert(firebaseServiceAccount),
   storageBucket,
 });
 

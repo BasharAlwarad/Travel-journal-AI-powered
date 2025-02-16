@@ -11,6 +11,7 @@ const storageBucket = process.env.FIREBASE_SERVICE_BUCKET_NAME;
 const apiKey = process.env.OPEN_AI_APIKEY;
 const mode = process.env.AI_MODE;
 const stream = process.env.AI_STREAM === 'false' ? false : true;
+const firebaseServiceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
 
 export {
   PORT,
@@ -23,4 +24,5 @@ export {
   apiKey,
   mode,
   stream,
+  firebaseServiceAccount,
 };
