@@ -1,5 +1,4 @@
 import express, { json } from 'express';
-import { config } from 'dotenv';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 
@@ -11,14 +10,18 @@ import chatRouter from './routers/chatRouter.js';
 import imageRouter from './routers/imageRouter.js';
 import './db/mongoDB.js';
 
-config();
-const PORT = process.env.PORT;
+import { PORT, CLIENT_URL } from './config/config.js';
 
 const app = express();
+if (!PORT || !CLIENT_URL) {
+  console.error('Please provide PORT and CLIENT_URL');
+  process.exit(1);
+}
+
 app.use(
-  json(),
+  json({ limit: '50mb' }),
   cors({
-    origin: process.env.CLIENT_URL,
+    origin: CLIENT_URL,
     credentials: true,
     allowedHeaders: ['Content-Type', 'Authorization'],
     methods: ['GET', 'POST', 'PUT', 'DELETE'],

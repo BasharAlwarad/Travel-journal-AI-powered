@@ -1,7 +1,10 @@
 import { NavLink } from 'react-router-dom';
+import { useAuthContext } from '../contexts/userContext';
 import Themes from './Themes';
 
 const Nav = () => {
+  const { user } = useAuthContext();
+
   const activeLink = ({ isActive }) =>
     isActive ? 'btn btn-ghost text-primary font-bold' : 'btn btn-ghost';
   return (
@@ -27,7 +30,7 @@ const Nav = () => {
       </div>
       <div className="navbar-end">
         <NavLink to="/login" className={activeLink}>
-          Login
+          {user ? 'Logout' : 'Login'}
         </NavLink>
         <Themes />
       </div>
