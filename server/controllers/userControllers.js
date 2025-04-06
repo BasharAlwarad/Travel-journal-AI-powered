@@ -1,7 +1,6 @@
 import User from '../models/userModel.js';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
-import { bucket } from '../config/firebase.js';
 import { CustomError } from '../utils/errorHandler.js';
 import asyncHandler from '../utils/asyncHandler.js';
 
@@ -22,7 +21,7 @@ export const getUserById = asyncHandler(async (req, res, next) => {
 
 // Create a new user
 
-export const createUser = asyncHandler(async (req, res, next) => {
+export const createUser = asyncHandler(async (req, res) => {
   const { name, email, password, role } = req.body;
   const image = req.file;
   const hashedPassword = await bcrypt.hash(password, 10);
@@ -34,40 +33,12 @@ export const createUser = asyncHandler(async (req, res, next) => {
     role,
   });
 
-  if (image) {
-    try {
-      const blob = bucket.file(
-        `images/${name}/${Date.now()}_${image.originalname}`
-      );
-      const blobStream = blob.createWriteStream({
-        metadata: { contentType: image.mimetype },
-      });
-
-      await new Promise((resolve, reject) => {
-        blobStream.on('error', (err) =>
-          reject(new CustomError('Image upload failed', 500))
-        );
-        blobStream.on('finish', resolve);
-        blobStream.end(image.buffer);
-      });
-
-      // Get signed URL after upload
-      const signedUrl = await blob.getSignedUrl({
-        action: 'read',
-        expires: '03-01-2500',
-      });
-      newUser.image = signedUrl[0];
-    } catch (error) {
-      return next(new CustomError('Image upload failed', 500));
-    }
-  }
-
   await newUser.save();
   res.status(201).json(newUser);
 });
 
 // Update user by ID
-export const updateUser = asyncHandler(async (req, res, next) => {
+export const updateUser = asyncHandler(async (req, res) => {
   const userId = req.params.id;
   const updates = req.body;
 
@@ -88,7 +59,7 @@ export const updateUser = asyncHandler(async (req, res, next) => {
 });
 
 // Delete user by ID
-export const deleteUser = asyncHandler(async (req, res, next) => {
+export const deleteUser = asyncHandler(async (req, res) => {
   const userId = req.params.id;
 
   const deletedUser = await User.findByIdAndDelete(userId);
@@ -100,7 +71,7 @@ export const deleteUser = asyncHandler(async (req, res, next) => {
 });
 
 // User Login
-export const loginUser = asyncHandler(async (req, res, next) => {
+export const loginUser = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
   const user = await User.findOne({ email });
 

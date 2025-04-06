@@ -10,9 +10,7 @@ const Users = () => {
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const response = await axios.get(`${ORIGIN_URL}/api/v1/users`, {
-          withCredentials: true,
-        });
+        const response = await axios.get(`${ORIGIN_URL}/api/v1/users`);
         setUsers(response.data);
       } catch (err) {
         setError('Failed to load users');
@@ -32,7 +30,7 @@ const Users = () => {
     <div className="flex flex-col items-center p-4 mt-10">
       <h1 className="mb-8 text-3xl font-bold">User List</h1>
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {users.map((user) => (
+        {users?.map((user) => (
           <div
             key={user._id}
             className="transition duration-300 shadow-lg card w-80 bg-base-100 hover:shadow-2xl"
