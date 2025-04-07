@@ -23,7 +23,6 @@ export const getUserById = asyncHandler(async (req, res, next) => {
 
 export const createUser = asyncHandler(async (req, res) => {
   const { name, email, password, role } = req.body;
-  const image = req.file;
   const hashedPassword = await bcrypt.hash(password, 10);
 
   const newUser = new User({

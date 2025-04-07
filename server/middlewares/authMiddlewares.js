@@ -3,7 +3,6 @@ import { CustomError } from '../utils/errorHandler.js';
 
 export const auth = (req, res, next) => {
   const token = req.cookies.token;
-
   if (!token) {
     return next(new CustomError('Unauthorized access', 401));
   }

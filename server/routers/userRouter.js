@@ -13,14 +13,13 @@ import {
 
 import { auth } from '../middlewares/authMiddlewares.js';
 
-const upload = multer({ storage: multer.memoryStorage() });
 const userRouter = Router();
 
-userRouter.post(`/register`, upload.single('image'), createUser);
+userRouter.post(`/register`, createUser);
 userRouter.post(`/login`, loginUser);
-userRouter.post(`/logout`, logoutUser);
+userRouter.post(`/logout`, auth, logoutUser);
 userRouter.get(`/check-session`, auth, checkSession);
-// userRouter.get(`/`, getUsers);
+
 userRouter.get(`/`, auth, getUsers);
 userRouter.get(`/:id`, auth, getUserById);
 userRouter.put(`/:id`, auth, updateUser);
