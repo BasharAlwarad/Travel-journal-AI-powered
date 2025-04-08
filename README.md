@@ -55,9 +55,6 @@ sequenceDiagram
 
 ```mermaid
 sequenceDiagram
-    participant Client (Browser)
-    participant Frontend (React)
-    participant Backend (Express)
 
     Note over Client, Frontend: User clicks logout button
     Client->>Frontend: Clicks "Logout"
