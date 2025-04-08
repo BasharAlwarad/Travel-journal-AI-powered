@@ -11,7 +11,7 @@ import {
   logoutUser,
 } from '../controllers/userControllers.js';
 
-import { auth } from '../middlewares/authMiddlewares.js';
+import { auth, owner, admin } from '../middlewares/authMiddlewares.js';
 
 const userRouter = Router();
 
@@ -21,8 +21,8 @@ userRouter.post(`/logout`, auth, logoutUser);
 userRouter.get(`/check-session`, auth, checkSession);
 
 userRouter.get(`/`, auth, getUsers);
-userRouter.get(`/:id`, auth, getUserById);
-userRouter.put(`/:id`, auth, updateUser);
-userRouter.delete(`/:id`, auth, deleteUser);
+userRouter.get(`/:id`, auth, owner, getUserById);
+userRouter.put(`/:id`, auth, owner, updateUser);
+userRouter.delete(`/:id`, auth, admin, deleteUser);
 
 export default userRouter;

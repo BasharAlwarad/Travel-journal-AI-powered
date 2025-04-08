@@ -22,3 +22,14 @@ export const admin = (req, res, next) => {
   }
   next(new CustomError('Access denied. Admins only.', 403));
 };
+
+export const owner = (req, res, next) => {
+  const userIdFromToken = req.user?.id; // from auth middleware
+  const userIdFromParams = req.params.id;
+
+  if (userIdFromToken === userIdFromParams || req.user?.role === 'admin') {
+    return next(); // proceed if owner or admin
+  }
+
+  next(new CustomError('Access denied. You are not the owner.', 403));
+};
