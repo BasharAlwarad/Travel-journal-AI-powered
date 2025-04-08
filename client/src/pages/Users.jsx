@@ -1,11 +1,13 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { ORIGIN_URL } from '../config';
+import { useNavigate } from 'react-router-dom'; // <-- add this
 
 const Users = () => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const navigate = useNavigate(); // <-- add this
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -13,7 +15,6 @@ const Users = () => {
         const response = await axios.get(`${ORIGIN_URL}/api/v1/users`, {
           withCredentials: true,
         });
-        console.log(response.data);
         setUsers(response.data);
       } catch (err) {
         setError('Failed to load users');
@@ -50,7 +51,12 @@ const Users = () => {
               <p className="text-gray-600">{user.email}</p>
               <p className="text-sm text-gray-500">{user.role}</p>
               <div className="mt-4 card-actions">
-                <button className="btn btn-primary">View Profile</button>
+                <button
+                  className="btn btn-primary"
+                  onClick={() => navigate(`/user/${user._id}`)}
+                >
+                  View Profile
+                </button>
               </div>
             </div>
           </div>
