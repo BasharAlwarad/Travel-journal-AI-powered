@@ -7,7 +7,6 @@ const Register = () => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [role, setRole] = useState('user');
   const [image, setImage] = useState(null);
   const [imagePreview, setImagePreview] = useState('');
   const [error, setError] = useState('');
@@ -34,25 +33,18 @@ const Register = () => {
     setError('');
     setSuccess('');
 
-    const formData = new FormData();
-    formData.append('name', name);
-    formData.append('email', email);
-    formData.append('password', password);
-    formData.append('role', role);
-    if (image) {
-      formData.append('image', image);
-    }
-
     try {
-      await axios.post(`${ORIGIN_URL}/api/v1/users/register`, formData, {
-        withCredentials: true,
-        headers: { 'Content-Type': 'multipart/form-data' },
-      });
+      await axios.post(
+        `${ORIGIN_URL}/api/v1/users/register`,
+        { name, email, password },
+        {
+          withCredentials: true,
+        }
+      );
       setSuccess('User created successfully!');
       setName('');
       setEmail('');
       setPassword('');
-      setRole('user');
       setImage(null);
       setImagePreview('');
       navigate('/login');

@@ -5,13 +5,13 @@ import { CustomError } from '../utils/errorHandler.js';
 import asyncHandler from '../utils/asyncHandler.js';
 
 // Get all users
-export const getUsers = asyncHandler(async (req, res, next) => {
+export const getUsers = asyncHandler(async (req, res) => {
   const users = await User.find();
   res.status(200).json(users);
 });
 
 // Get user by ID
-export const getUserById = asyncHandler(async (req, res, next) => {
+export const getUserById = asyncHandler(async (req, res) => {
   const user = await User.findById(req.params.id);
   if (!user) {
     throw new CustomError('User not found', 404);
@@ -22,14 +22,13 @@ export const getUserById = asyncHandler(async (req, res, next) => {
 // Create a new user
 
 export const createUser = asyncHandler(async (req, res) => {
-  const { name, email, password, role } = req.body;
+  const { name, email, password } = req.body;
   const hashedPassword = await bcrypt.hash(password, 10);
 
   const newUser = new User({
     name,
     email,
     password: hashedPassword,
-    role,
   });
 
   await newUser.save();

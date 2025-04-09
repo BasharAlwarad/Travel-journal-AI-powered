@@ -1,7 +1,6 @@
 import jwt from 'jsonwebtoken';
 import { CustomError } from '../utils/errorHandler.js';
 import { JWT_SECRET } from '../config/config.js';
-
 import Post from '../models/postsModels.js';
 
 export const auth = (req, res, next) => {
@@ -13,6 +12,7 @@ export const auth = (req, res, next) => {
   try {
     const decoded = jwt.verify(token, JWT_SECRET);
     req.user = decoded;
+
     next();
   } catch (error) {
     next(new CustomError('Invalid or expired token', 401));

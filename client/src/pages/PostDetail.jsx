@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
+import { ORIGIN_URL } from '../config';
 
 const PostDetail = () => {
   const { id } = useParams();
@@ -12,12 +13,9 @@ const PostDetail = () => {
     const fetchPost = async () => {
       setLoading(true);
       try {
-        const response = await axios.get(
-          `http://localhost:8080/api/v1/posts/${id}`,
-          {
-            withCredentials: true,
-          }
-        );
+        const response = await axios.get(`${ORIGIN_URL}/api/v1/posts/${id}`, {
+          withCredentials: true,
+        });
         setPost(response.data);
       } catch (error) {
         setError(error.response?.data?.message || 'Failed to retrieve post');

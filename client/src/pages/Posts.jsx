@@ -46,18 +46,12 @@ const Posts = () => {
   }, []);
 
   const createPost = async () => {
-    const formData = new FormData();
-    formData.append('text', text);
-    if (image) {
-      formData.append('image', image);
-    }
     try {
       const response = await axios.post(
         `${ORIGIN_URL}/api/v1/posts`,
-        formData,
+        { text },
         {
           withCredentials: true,
-          headers: { 'Content-Type': 'multipart/form-data' },
         }
       );
       setPosts([response.data, ...posts]);
