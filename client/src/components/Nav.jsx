@@ -14,6 +14,11 @@ const Nav = () => {
       <div className="hidden navbar-center lg:flex">
         <ul className="px-1 menu menu-horizontal">
           <li>
+            <NavLink to="/posts" className={activeLink}>
+              Posts
+            </NavLink>
+          </li>
+          <li>
             <NavLink to="/users" className={activeLink}>
               Users
             </NavLink>

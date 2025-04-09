@@ -9,7 +9,6 @@ const User = () => {
   const [user, setUser] = useState(null);
   const [showForm, setShowForm] = useState(false);
   const [formData, setFormData] = useState({ name: '', email: '', role: '' });
-
   useEffect(() => {
     const fetchUser = async () => {
       try {
