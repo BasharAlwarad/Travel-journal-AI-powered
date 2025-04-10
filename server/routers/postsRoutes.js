@@ -13,7 +13,8 @@ const postsRouter = Router();
 
 postsRouter.use(auth);
 
-postsRouter.get(`/`, auth, getPosts);
+postsRouter.get(`/`, getPosts);
+// postsRouter.get(`/`, auth, getPosts);
 postsRouter.post(`/`, auth, createPost);
 postsRouter.get('/user', auth, getPostsByUser);
 

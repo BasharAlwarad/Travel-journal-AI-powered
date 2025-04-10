@@ -1,20 +1,20 @@
 import express, { json } from 'express';
-import { config } from 'dotenv';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 
+import { PORT, CLIENT_URL, MODE } from './config/config.js';
 import { errorHandler } from './utils/errorHandler.js';
+
 import usersRouter from './routers/userRouter.js';
 import postsRouter from './routers/postsRoutes.js';
-import './db/mongoDB.js';
+import reviewsRouter from './routers/reviewsRoutes.js';
 
-config();
-const PORT = process.env.PORT;
+import './db/mongoDB.js';
 
 const app = express();
 app.use(
   json(),
-  cors({ origin: process.env.CLIENT_URL, credentials: true }),
+  cors({ origin: CLIENT_URL, credentials: true }),
   cookieParser()
 );
 
@@ -24,6 +24,7 @@ app.get('/', (req, res) => {
 
 app.use(`/api/v1/users`, usersRouter);
 app.use(`/api/v1/posts`, postsRouter);
+app.use(`/api/v1/reviews`, reviewsRouter);
 
 app.get('*', (req, res) => {
   res.status(404).json({ message: 'page not found!' });
@@ -31,5 +32,5 @@ app.get('*', (req, res) => {
 
 app.use(errorHandler);
 app.listen(PORT, () => {
-  console.log(`Server is running in ${process.env.NODE_ENV} mode on ${PORT}`);
+  console.log(`Server is 🏃 in ${MODE} mode on ${PORT}`);
 });

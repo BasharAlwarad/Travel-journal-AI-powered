@@ -1,5 +1,4 @@
-import Post from '../models/postsModels.js';
-import { bucket } from '../config/firebase.js';
+import Post from '../models/postsModel.js';
 import { CustomError } from '../utils/errorHandler.js';
 import asyncHandler from '../utils/asyncHandler.js';
 

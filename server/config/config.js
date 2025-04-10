@@ -1,6 +1,7 @@
 import { config } from 'dotenv';
 config();
 
+const MODE = process.env.NODE_ENV;
 const PORT = process.env.PORT;
 const MONGO_URI = process.env.MONGODB_URI;
 const SESSION_SECRET = process.env.SESSION_SECRET;
@@ -10,6 +11,7 @@ const CLIENT_URL = process.env.CLIENT_URL;
 const storageBucket = process.env.FIREBASE_SERVICE_BUCKET_NAME;
 
 export {
+  MODE,
   PORT,
   MONGO_URI,
   SESSION_SECRET,
