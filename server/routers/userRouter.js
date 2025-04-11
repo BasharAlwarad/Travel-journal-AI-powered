@@ -12,10 +12,10 @@ import {
 } from '../controllers/userControllers.js';
 
 import { auth, owner, admin } from '../middlewares/authMiddlewares.js';
-
 const userRouter = Router();
+const upload = multer({ storage: multer.memoryStorage() });
 
-userRouter.post(`/register`, createUser);
+userRouter.post(`/register`, upload.single('image'), createUser);
 userRouter.post(`/login`, loginUser);
 userRouter.post(`/logout`, auth, logoutUser);
 userRouter.get(`/check-session`, auth, checkSession);

@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import multer from 'multer';
 import {
   getPosts,
   getPostById,
@@ -12,10 +13,10 @@ import { auth, postOwner } from '../middlewares/authMiddlewares.js';
 const postsRouter = Router();
 
 postsRouter.use(auth);
+const upload = multer({ storage: multer.memoryStorage() });
 
 postsRouter.get(`/`, getPosts);
-// postsRouter.get(`/`, auth, getPosts);
-postsRouter.post(`/`, auth, createPost);
+postsRouter.post(`/`, auth, upload.single('image'), createPost);
 postsRouter.get('/user', auth, getPostsByUser);
 
 postsRouter.get('/:id', getPostById);

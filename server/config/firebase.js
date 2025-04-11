@@ -1,9 +1,11 @@
 import admin from 'firebase-admin';
-import { storageBucket } from './config.js';
+import { getStorage } from 'firebase-admin/storage';
+import { firebaseServiceAccount, storageBucket } from './config.js';
 
 admin.initializeApp({
-  credential: admin.credential.applicationDefault(),
+  credential: admin.credential.cert(firebaseServiceAccount),
   storageBucket,
 });
 
-export const bucket = admin.storage().bucket();
+const bucket = getStorage().bucket();
+export { bucket };

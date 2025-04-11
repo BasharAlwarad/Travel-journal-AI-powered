@@ -1,6 +1,7 @@
 import User from '../models/userModel.js';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
+import { bucket } from '../config/firebase.js';
 import { CustomError } from '../utils/errorHandler.js';
 import asyncHandler from '../utils/asyncHandler.js';
 
@@ -20,19 +21,62 @@ export const getUserById = asyncHandler(async (req, res) => {
 });
 
 // Create a new user
-
-export const createUser = asyncHandler(async (req, res) => {
+export const createUser = asyncHandler(async (req, res, next) => {
   const { name, email, password } = req.body;
+  const image = req.file;
   const hashedPassword = await bcrypt.hash(password, 10);
-
   const newUser = new User({
     name,
     email,
     password: hashedPassword,
   });
 
-  await newUser.save();
-  res.status(201).json(newUser);
+  let uploadedImageUrl = '';
+  try {
+    let blob;
+    let buffer;
+    let contentType = 'image/png'; // Default content type
+
+    // creating image to upload to firebase storage
+    if (image) {
+      contentType = image.mimetype; // Use the actual mimetype
+      blob = bucket.file(
+        `images/${name}/user/${Date.now()}_${image.originalname}`
+      );
+      buffer = image.buffer;
+    }
+
+    if (blob) {
+      const blobStream = blob.createWriteStream({
+        metadata: { contentType },
+      });
+
+      await new Promise((resolve, reject) => {
+        blobStream.on('error', (err) =>
+          reject(new CustomError(`Image upload failed: ${err.message}`, 500))
+        );
+        blobStream.on('finish', resolve);
+        blobStream.end(buffer);
+      });
+
+      const signedUrl = await blob.getSignedUrl({
+        action: 'read',
+        expires: '03-01-2500',
+      });
+      uploadedImageUrl = signedUrl[0];
+      console.log(uploadedImageUrl);
+      newUser.image = uploadedImageUrl;
+      console.log(newUser);
+    }
+
+    await newUser.save();
+    res.status(201).json(newUser);
+  } catch (error) {
+    console.error('Error saving user:', error);
+    return next(
+      new CustomError(`Failed to create user: ${error.message}`, 500)
+    );
+  }
 });
 
 // Update user by ID
