@@ -2,15 +2,18 @@ import { useEffect, useState, useRef } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
 import { ORIGIN_URL } from '../config';
+import { useAuthContext } from '../contexts/userContext';
 
 const Posts = () => {
+  const { user, setUser } = useAuthContext();
   const [posts, setPosts] = useState([]);
-  const [text, setText] = useState('');
+  const [prompt, setPrompt] = useState('');
   const [image, setImage] = useState(null);
   const [editingPost, setEditingPost] = useState(null);
   const [imagePreview, setImagePreview] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [AIImage, setAIImage] = useState(null);
 
   const fileInputRef = useRef(null);
 
@@ -18,7 +21,6 @@ const Posts = () => {
     fileInputRef.current.click();
   };
 
-  // Handle image file selection and preview
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -33,7 +35,7 @@ const Posts = () => {
       const response = await axios.get(`${ORIGIN_URL}/api/v1/posts`, {
         withCredentials: true,
       });
-      setPosts(Array.isArray(response.data) ? response.data : []);
+      setPosts(response.data);
     } catch (error) {
       setError(error.response?.data?.message || 'Failed to fetch posts');
       setPosts([]);
@@ -47,9 +49,12 @@ const Posts = () => {
 
   const createPost = async () => {
     const formData = new FormData();
-    formData.append('text', text);
+    formData.append('text', prompt);
     if (image) {
       formData.append('image', image);
+    }
+    if (AIImage) {
+      formData.append('AIImage', AIImage);
     }
     try {
       const response = await axios.post(
@@ -61,7 +66,7 @@ const Posts = () => {
         }
       );
       setPosts([response.data, ...posts]);
-      setText('');
+      setPrompt('');
       setImage('');
       setImagePreview(null);
     } catch (error) {
@@ -69,33 +74,16 @@ const Posts = () => {
     }
   };
 
-  // const createPost = async () => {
-  //   try {
-  //     const response = await axios.post(
-  //       `${ORIGIN_URL}/api/v1/posts`,
-  //       { text },
-  //       {
-  //         withCredentials: true,
-  //       }
-  //     );
-  //     setPosts([response.data, ...posts]);
-  //     setText('');
-  //     setImage('');
-  //   } catch (error) {
-  //     setError(error.response?.data?.message || 'Failed to create post');
-  //   }
-  // };
-
   const updatePost = async (id) => {
     try {
       const response = await axios.put(
         `${ORIGIN_URL}/api/v1/posts/${id}`,
-        { text, image },
+        { text: prompt, image },
         { withCredentials: true }
       );
       setPosts(posts.map((post) => (post._id === id ? response.data : post)));
       setEditingPost(null);
-      setText('');
+      setPrompt('');
       setImage('');
     } catch (error) {
       setError(error.response?.data?.message || 'Failed to update post');
@@ -113,6 +101,28 @@ const Posts = () => {
     }
   };
 
+  const handleGenerateAIImage = async () => {
+    try {
+      const { data } = await axios.post(
+        `${ORIGIN_URL}/api/v1/images/generations`,
+        { prompt },
+        {
+          withCredentials: true,
+        }
+      );
+      const base64Image = data[0].b64_json;
+      if (base64Image) {
+        const imageSrc = `data:image/png;base64,${base64Image}`;
+        setImagePreview(imageSrc);
+        setAIImage(imageSrc);
+      } else {
+        console.error('No base64 image data found');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+    }
+  };
+
   return (
     <div className="max-w-2xl p-6 mx-auto bg-white rounded-lg shadow-lg">
       <h2 className="mb-4 text-3xl font-semibold text-center">Posts</h2>
@@ -126,8 +136,8 @@ const Posts = () => {
         <input
           type="text"
           placeholder="Post text"
-          value={text}
-          onChange={(e) => setText(e.target.value)}
+          value={prompt}
+          onChange={(e) => setPrompt(e.target.value)}
           className="w-full mb-2 input input-bordered"
         />
         <button
@@ -144,6 +154,14 @@ const Posts = () => {
           onChange={handleImageChange}
           style={{ display: 'none' }}
         />
+        <button
+          type="button"
+          onClick={handleGenerateAIImage}
+          className="w-full btn btn-accent mt-2"
+        >
+          Generate AI Image
+        </button>
+
         {imagePreview && (
           <div className="mt-4">
             <img
@@ -185,24 +203,26 @@ const Posts = () => {
                 >
                   Read More
                 </Link>
-                <div className="flex space-x-2">
-                  <button
-                    onClick={() => {
-                      setText(post.text);
-                      setImage(post.image);
-                      setEditingPost(post._id);
-                    }}
-                    className="btn btn-outline btn-sm"
-                  >
-                    Edit
-                  </button>
-                  <button
-                    onClick={() => deletePost(post._id)}
-                    className="btn btn-error btn-sm"
-                  >
-                    Delete
-                  </button>
-                </div>
+                {user && post.user?._id === user.id && (
+                  <div className="flex space-x-2">
+                    <button
+                      onClick={() => {
+                        setPrompt(post.text);
+                        setImage(post.image);
+                        setEditingPost(post._id);
+                      }}
+                      className="btn btn-outline btn-sm"
+                    >
+                      Edit
+                    </button>
+                    <button
+                      onClick={() => deletePost(post._id)}
+                      className="btn btn-error btn-sm"
+                    >
+                      Delete
+                    </button>
+                  </div>
+                )}
               </div>
             </li>
           ))}

@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
+import AIReviewButton from '../components/AiReviewButton';
 import axios from 'axios';
 import { ORIGIN_URL } from '../config';
 
@@ -162,6 +163,7 @@ const PostDetail = () => {
               Submit
             </button>
           </div>
+          <AIReviewButton postId={id} />
         </>
       ) : (
         <p className="text-center text-gray-500">Post not found.</p>

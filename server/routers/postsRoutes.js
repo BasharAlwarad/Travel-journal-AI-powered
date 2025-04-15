@@ -13,7 +13,13 @@ import { auth, postOwner } from '../middlewares/authMiddlewares.js';
 const router = Router();
 
 router.use(auth);
-const upload = multer({ storage: multer.memoryStorage() });
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: {
+    fileSize: 5 * 1024 * 1024,
+    fieldSize: 25 * 1024 * 1024,
+  },
+});
 
 router.get(`/`, getPosts);
 router.post(`/`, upload.single('image'), createPost);
