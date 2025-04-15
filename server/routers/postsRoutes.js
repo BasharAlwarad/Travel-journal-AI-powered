@@ -10,17 +10,17 @@ import {
 } from '../controllers/postsControllers.js';
 import { auth, postOwner } from '../middlewares/authMiddlewares.js';
 
-const postsRouter = Router();
+const router = Router();
 
-postsRouter.use(auth);
+router.use(auth);
 const upload = multer({ storage: multer.memoryStorage() });
 
-postsRouter.get(`/`, getPosts);
-postsRouter.post(`/`, auth, upload.single('image'), createPost);
-postsRouter.get('/user', auth, getPostsByUser);
+router.get(`/`, getPosts);
+router.post(`/`, upload.single('image'), createPost);
+router.get('/user', getPostsByUser);
 
-postsRouter.get('/:id', getPostById);
-postsRouter.put(`/:id`, auth, postOwner, updatePost);
-postsRouter.delete(`/:id`, auth, postOwner, deletePost);
+router.get('/:id', getPostById);
+router.put(`/:id`, postOwner, updatePost);
+router.delete(`/:id`, postOwner, deletePost);
 
-export default postsRouter;
+export default router;

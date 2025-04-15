@@ -12,17 +12,17 @@ import {
 } from '../controllers/userControllers.js';
 
 import { auth, owner, admin } from '../middlewares/authMiddlewares.js';
-const userRouter = Router();
+const router = Router();
 const upload = multer({ storage: multer.memoryStorage() });
 
-userRouter.post(`/register`, upload.single('image'), createUser);
-userRouter.post(`/login`, loginUser);
-userRouter.post(`/logout`, auth, logoutUser);
-userRouter.get(`/check-session`, auth, checkSession);
+router.post(`/register`, upload.single('image'), createUser);
+router.post(`/login`, loginUser);
+router.post(`/logout`, auth, logoutUser);
+router.get(`/check-session`, auth, checkSession);
 
-userRouter.get(`/`, auth, getUsers);
-userRouter.get(`/:id`, auth, owner, getUserById);
-userRouter.put(`/:id`, auth, owner, updateUser);
-userRouter.delete(`/:id`, auth, admin, deleteUser);
+router.get(`/`, auth, getUsers);
+router.get(`/:id`, auth, owner, getUserById);
+router.put(`/:id`, auth, owner, updateUser);
+router.delete(`/:id`, auth, admin, deleteUser);
 
-export default userRouter;
+export default router;

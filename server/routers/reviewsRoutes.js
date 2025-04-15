@@ -15,17 +15,18 @@ import {
 
 const router = express.Router();
 
+router.use(auth);
+
 router.get('/post/:postId', getReviewsByPost);
 router.post(
   '/post/:postId',
-  auth,
   preventPostOwnerReview,
   preventMultipleReviews,
   createReview
 );
 
-router.get('/:id', auth, getReviewById);
-router.put('/:id', auth, reviewOwner, updateReview);
-router.delete('/:id', auth, reviewOwner, deleteReview);
+router.get('/:id', getReviewById);
+router.put('/:id', reviewOwner, updateReview);
+router.delete('/:id', reviewOwner, deleteReview);
 
 export default router;
