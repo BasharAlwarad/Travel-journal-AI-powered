@@ -1,4 +1,6 @@
-import { useContext, createContext, useState } from 'react';
+import { useEffect, useContext, createContext, useState } from 'react';
+import { ORIGIN_URL } from '../config';
+import axios from 'axios';
 
 const UserContext = createContext();
 
@@ -7,19 +9,31 @@ export const AuthProvider = ({ children }) => {
   const [users, setUsers] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  const login = (userData) => {
-    setLoading(true);
-    setUser(userData);
-    setLoading(false);
-  };
-
-  const logout = () => {
-    setUser(null);
-  };
+  useEffect(() => {
+    const checkSession = async () => {
+      try {
+        const response = await axios.get(
+          `${ORIGIN_URL}/api/v1/users/check-session`,
+          {
+            withCredentials: true,
+          }
+        );
+        console.log(response.data);
+        if (response.data.authenticated) {
+          setUser(response.data.user);
+        } else {
+          setUser(null);
+        }
+      } catch (error) {
+        setUser(null);
+      }
+    };
+    checkSession();
+  }, []);
 
   return (
     <UserContext.Provider
-      value={{ user, setUser, users, setUsers, loading, login, logout }}
+      value={{ user, setUser, users, setUsers, loading, setLoading }}
     >
       {children}
     </UserContext.Provider>
